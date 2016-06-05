@@ -19,18 +19,14 @@ IRsend irsend;
 decode_results results;
 
 void setup() {
-  irrecv.enableIRIn();  // Start the receiver
   Serial.begin(9600);
-  pinMode(3, OUTPUT);
+  delay(3000);
   for (int i=0; i<5; i++) {
-    //irsend.sendNEC(DVB::VOLUME_UP, 32);
-    digitalWrite(3, HIGH);
-    delay(300);
-    digitalWrite(3, LOW);
-    delay(300);
+    irsend.sendNEC(DVB::VOLUME_UP, 32);
+    delay(60);
   }
-  irsend.sendNEC(DVD::VOLUME_UP, 32);
   Serial.write("DVB signal sent");
+  irrecv.enableIRIn();  // Start the receiver
 }
 
 void loop() {
@@ -45,11 +41,26 @@ void loop() {
     if (results.value == DVB::CHANNEL_UP)   Serial.write("Channel up (Pristavka)\n");
     if (results.value == DVB::CHANNEL_DOWN)   Serial.write("Channel down (Pristavka)\n");
     if (results.value == DVB::OK)   Serial.write("OK (Pristavka)\n");
-    if (results.value == DVD::VOLUME_UP)   Serial.write("Volume up (DVD Karaoke)\n");
-    if (results.value == DVD::VOLUME_DOWN)   Serial.write("Volume down (DVD Karaoke)\n");
     if (results.value == DVD::OK)   Serial.write("OK (DVD Karaoke)\n");
-
+    if (results.value == TV::ARROW_RIGHT)   {
+      Serial.write("TV Arrow Right\n");
+      irsend.sendNEC(DVB::VOLUME_UP, 32);
+    }
+    if (results.value == TV::ARROW_LEFT)   {
+      Serial.write("TV Arrow Left\n");
+      irsend.sendNEC(DVB::VOLUME_DOWN, 32);
+    }
+    if (results.value == TV::ARROW_UP)   {
+      Serial.write("TV Arrow Up\n");
+      irsend.sendNEC(DVB::CHANNEL_UP, 32);
+    }
+    if (results.value == TV::ARROW_DOWN)   {
+      Serial.write("TV Arrow Down\n");
+      irsend.sendNEC(DVB::CHANNEL_DOWN, 32);
+    }
+    delay(40);
+    irrecv.enableIRIn();
     irrecv.resume(); // Receive the next value
   }
-  delay(100);  
+  delay(50);  
 }
